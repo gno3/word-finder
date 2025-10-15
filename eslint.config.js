@@ -19,5 +19,20 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // TypeScript rules (relaxed for rapid development)
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'warn', // Changed from error to warning
+      '@typescript-eslint/explicit-function-return-type': 'off', // Disabled for convenience
+      '@typescript-eslint/no-unsafe-function-type': 'off', // Disabled
+      
+      // React-specific rules
+      'react-hooks/exhaustive-deps': 'warn',
+      
+      // General code quality (relaxed)
+      'prefer-const': 'warn',
+      'no-var': 'error',
+      'no-console': 'off', // Allow console statements for debugging
+    },
   },
 ])

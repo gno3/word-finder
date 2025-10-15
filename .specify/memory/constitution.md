@@ -1,10 +1,11 @@
 <!-- 
 Sync Impact Report:
-- Version change: INITIAL → 1.0.0
-- Added principles: Clean Code, Simple UX, Responsive Design, Minimal Dependencies
-- Added sections: Technology Stack, Development Standards
+- Version change: 1.0.0 → 1.1.0
+- Modified sections: Technology Stack (updated styling requirement)
+- Added technology requirement: Tailwind CSS mandatory for styling
+- Removed sections: None
 - Templates requiring updates: ✅ plan-template.md updated, ✅ tasks-template.md updated
-- Follow-up TODOs: None
+- Follow-up TODOs: Install Tailwind CSS dependency in package.json when implementing features
 -->
 
 # Word Finder Constitution
@@ -35,7 +36,7 @@ External dependencies MUST be justified by significant value addition. Each new 
 
 **Framework**: React 19.1.1+ with TypeScript 5.9.3+
 **Build Tool**: Vite 7.1.7+ for fast development and optimized production builds
-**Styling**: CSS Modules or native CSS features (no CSS-in-JS libraries unless justified)
+**Styling**: Tailwind CSS for utility-first styling approach - custom CSS MUST be minimized and justified
 **State Management**: React built-in state management (useState, useReducer, Context) - external state libraries require justification
 **Testing**: Vite's built-in testing capabilities - additional testing frameworks require justification
 **Linting**: ESLint with TypeScript support as configured in eslint.config.js
@@ -56,4 +57,4 @@ Constitution supersedes all other practices and style guides. All pull requests 
 
 Amendments require documentation of impact, migration plan for existing code, and approval from project maintainers. Breaking changes to technology stack require constitutional amendment process.
 
-**Version**: 1.0.0 | **Ratified**: 2025-10-15 | **Last Amended**: 2025-10-15
+**Version**: 1.1.0 | **Ratified**: 2025-10-15 | **Last Amended**: 2025-10-15

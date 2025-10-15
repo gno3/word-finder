@@ -18,7 +18,7 @@
 -->
 
 **Language/Version**: TypeScript 5.9.3 with React 19.1.1
-**Primary Dependencies**: React DOM 19.1.1, Vite 7.1.7, ESLint 9.36.0  
+**Primary Dependencies**: React DOM 19.1.1, Vite 7.1.7, Tailwind CSS, ESLint 9.36.0  
 **Storage**: Browser localStorage/sessionStorage or external API (specify if applicable)
 **Testing**: Vite built-in testing capabilities (additional frameworks require justification)
 **Target Platform**: Modern web browsers (Chrome, Firefox, Safari, Edge)
@@ -35,7 +35,7 @@
 - [ ] **Simple UX**: User workflows are optimized for shortest path to completion, single primary action per screen
 - [ ] **Responsive Design**: Design works on mobile, tablet, desktop with mobile-first approach
 - [ ] **Minimal Dependencies**: Each new dependency justified by significant value, bundle size impact assessed
-- [ ] **Technology Stack**: Uses approved React 19.1.1+, TypeScript 5.9.3+, Vite 7.1.7+ versions
+- [ ] **Technology Stack**: Uses approved React 19.1.1+, TypeScript 5.9.3+, Vite 7.1.7+ versions, Tailwind CSS for styling
 - [ ] **Performance Standards**: Bundle size monitoring planned, lazy loading considered where appropriate
 
 ## Project Structure

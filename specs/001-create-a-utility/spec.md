@@ -3,7 +3,7 @@
 **Feature Branch**: `001-create-a-utility`  
 **Created**: 2025-10-15  
 **Status**: Draft  
-**Input**: User description: "Create a utility function to fetch and parse the dictionary text file from https://gist.githubusercontent.com/deostroll/7693b6f3d48b44a89ee5f57bf750bd32/raw/426f564cf73b4c87d2b2c46ccded8a5b98658ce1/dictionary.txt on app load"
+**Input**: User description: "Create a utility function to fetch and parse the dictionary text file from https://raw.githubusercontent.com/jesstess/Scrabble/master/scrabble/sowpods.txt on app load"
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -58,24 +58,26 @@ The application gracefully handles scenarios where the dictionary source is upda
 - What occurs when the dictionary file format changes unexpectedly?
 - How does the app behave when the dictionary file is extremely large and takes a long time to download?
 - What happens when the user's device has very limited storage space?
+- What occurs when the dictionary file exceeds the 5MB size limit?
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: System MUST automatically fetch the dictionary file from the specified URL when the application loads
-- **FR-002**: System MUST parse the downloaded text file into a usable data structure for word lookups
-- **FR-003**: System MUST cache the dictionary data locally to enable offline access
+- **FR-002**: System MUST parse the downloaded text file into a string array with one word per line for efficient lookups
+- **FR-003**: System MUST cache the dictionary data in browser localStorage to enable persistent offline access across sessions
 - **FR-004**: System MUST provide feedback to users about dictionary loading status (loading, success, error)
-- **FR-005**: System MUST handle network errors gracefully without crashing the application
-- **FR-006**: System MUST validate that downloaded data is a valid dictionary format before using it
+- **FR-005**: System MUST handle network errors gracefully by retrying up to 3 times with exponential backoff without crashing the application
+- **FR-006**: System MUST validate downloaded data contains alphabetic words separated by newlines and reject files with binary or malformed content
 - **FR-007**: System MUST allow the application to function with previously cached data when new downloads fail
 - **FR-008**: System MUST complete dictionary loading within a reasonable timeframe to avoid blocking user interface
+- **FR-009**: System MUST handle dictionary files up to 5MB in size and reject larger files with appropriate error messaging
 
 ### Key Entities *(include if feature involves data)*
 
-- **Dictionary**: A collection of words parsed from the remote text file, stored in a format optimized for fast lookup operations
-- **Dictionary Entry**: Individual words from the dictionary file, with potential metadata like length or frequency information
+- **Dictionary**: A string array containing words parsed from the remote text file, with one word per line format
+- **Dictionary Entry**: Individual words stored as plain text strings without additional metadata
 - **Loading State**: Status information about the dictionary fetching process (loading, loaded, error, cached)
 
 ## Success Criteria *(mandatory)*
@@ -88,3 +90,13 @@ The application gracefully handles scenarios where the dictionary source is upda
 - **SC-004**: 99% of dictionary loading attempts succeed when internet connectivity is available
 - **SC-005**: Application successfully falls back to cached dictionary data when network is unavailable
 - **SC-006**: Dictionary data persists across application restarts without requiring re-download
+
+## Clarifications
+
+### Session 2025-10-15
+
+- Q: What storage mechanism should be used for local dictionary caching? → A: Browser localStorage (persistent across sessions)
+- Q: What internal data structure format should be used for parsed dictionary data? → A: Plain text with one word per line (simple string array)
+- Q: What is the maximum acceptable dictionary file size for storage and performance? → A: 5MB (comprehensive dictionary, reasonable size)
+- Q: What retry strategy should be used for failed dictionary downloads? → A: Retry 3 times with exponential backoff
+- Q: What validation should be performed on downloaded dictionary content? → A: Text format validation only

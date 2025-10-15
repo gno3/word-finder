@@ -90,7 +90,7 @@ Examples of foundational tasks (adjust based on your React project):
 - [ ] T014 [US1] Implement [FeatureName] page component in src/pages/[FeatureName].tsx (depends on T012, T013)
 - [ ] T015 [US1] Add TypeScript types and interfaces in src/types/[feature].ts
 - [ ] T016 [US1] Add form validation and error handling
-- [ ] T017 [US1] Add responsive styling and accessibility features
+- [ ] T017 [US1] Add responsive Tailwind CSS styling and accessibility features
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

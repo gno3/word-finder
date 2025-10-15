@@ -1,73 +1,233 @@
-# React + TypeScript + Vite
+# Word Finder
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React TypeScript application that loads and searches a dictionary of words, featuring robust caching, error handling, and offline support.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Core Functionality
+- **Dictionary Loading**: Automatically downloads and caches a dictionary on first load
+- **Word Search**: Fast word lookup with binary search optimization
+- **Offline Support**: Works offline using cached dictionary data
+- **Error Recovery**: Comprehensive error handling with automatic retry logic
+- **Performance Optimized**: Sub-100ms word lookup performance target
 
-## React Compiler
+### User Stories Implemented
+1. **P1: Startup Loading** - Dictionary loads automatically on app startup with progress indicators
+2. **P2: Offline Access** - Cached dictionary provides offline functionality  
+3. **P3: Error Handling** - Robust error recovery with user-friendly messaging
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Technology Stack
 
-## Expanding the ESLint configuration
+- **React 19.1.1** - Modern React with hooks and Suspense
+- **TypeScript 5.9.3** - Type-safe development
+- **Vite 7.1.7** - Fast build tool and development server
+- **Tailwind CSS** - Utility-first styling (constitutional requirement)
+- **ESLint 9.36.0** - Code quality and consistency
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Architecture
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Service Layer
+- `DictionaryService` - Core dictionary operations and state management
+- `StorageUtils` - localStorage caching and validation
+- `ValidationUtils` - Content validation and parsing
+- `RetryUtils` - Network retry logic with exponential backoff
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### React Integration
+- `useDictionary` - Main React hook for dictionary functionality
+- `DictionaryLoadingComponents` - Loading states and error displays
+- `DictionaryFeedback` - User notification components
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Error Handling
+- `ErrorHandlingUtils` - Centralized error processing
+- `StartupErrorHandler` - Specialized startup error scenarios
+- `DictionaryLogger` - Error reporting and logging system
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+
+### Installation
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd word-finder
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Available Scripts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
+npm run lint:fix     # Fix ESLint issues
 ```
+
+## Usage
+
+### Basic Usage
+
+The app automatically loads the dictionary on startup. Once loaded, you can:
+
+1. **Search Words**: Enter any word in the search box to check if it exists
+2. **View Status**: Dictionary status is displayed in the header
+3. **Handle Errors**: If loading fails, retry options are provided
+4. **Offline Mode**: Cached dictionary works without internet connection
+
+### Configuration
+
+Dictionary configuration can be modified in `src/config/dictionary.ts`:
+
+```typescript
+export const DEFAULT_DICTIONARY_CONFIG = {
+  sourceUrl: 'https://gist.githubusercontent.com/...',
+  maxSize: 5 * 1024 * 1024, // 5MB limit
+  maxRetries: 3,
+  initialRetryDelay: 1000,
+  maxRetryDelay: 8000,
+  cacheKeyPrefix: 'word-finder'
+};
+```
+
+## Components
+
+### Core Components
+
+#### `useDictionary` Hook
+```typescript
+const { 
+  words,           // Array of dictionary words
+  loadingState,    // Current loading status
+  isLoading,       // Boolean loading state
+  isReady,         // Boolean ready state
+  hasError,        // Boolean error state
+  hasWord,         // Function to check word existence
+  refresh,         // Function to refresh dictionary
+  retry            // Function to retry failed operations
+} = useDictionary();
+```
+
+#### `DictionaryStartupScreen`
+Full-screen loading component for initial dictionary loading.
+
+#### `DictionaryStatus` 
+Compact status indicator showing dictionary state.
+
+#### `DictionaryErrorDisplay`
+Error display with retry and dismiss options.
+
+### Performance Features
+
+- **Binary Search**: O(log n) word lookup for large dictionaries
+- **Caching**: localStorage persistence with validation
+- **Retry Logic**: Exponential backoff for network resilience
+- **Memory Management**: Efficient memory usage monitoring
+- **Code Splitting**: Lazy loading for non-critical components
+
+## Error Handling
+
+The application implements comprehensive error handling:
+
+### Error Types
+- **Network Errors**: Connection issues, timeouts
+- **Validation Errors**: Invalid dictionary format
+- **Storage Errors**: localStorage quota exceeded
+- **Size Errors**: Dictionary too large
+
+### Recovery Strategies
+- **Automatic Retry**: Up to 3 attempts with exponential backoff
+- **Cache Fallback**: Use cached data when network fails
+- **Graceful Degradation**: Limited functionality when dictionary unavailable
+- **User Guidance**: Clear error messages and suggested actions
+
+## Performance Targets
+
+- **Dictionary Loading**: < 5 seconds
+- **Word Lookup**: < 100ms
+- **Cache Validation**: < 50ms
+- **Memory Usage**: < 50MB for 100k words
+
+## Browser Support
+
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+
+## Constitutional Compliance
+
+This project follows the constitutional requirements:
+
+✅ **TypeScript 5.9.3** - Type safety and modern JavaScript features  
+✅ **React 19.1.1** - Component-based architecture with hooks  
+✅ **Vite 7.1.7** - Fast development and optimized builds  
+✅ **Tailwind CSS** - Utility-first styling approach  
+✅ **ESLint 9.36.0** - Code quality enforcement  
+✅ **Clean Code** - Modular architecture with clear separation of concerns  
+✅ **Simple UX** - Intuitive interface with clear user feedback  
+✅ **Responsive Design** - Mobile-first Tailwind CSS implementation  
+✅ **Minimal Dependencies** - Only essential packages, leveraging browser APIs
+
+## Development
+
+### Project Structure
+
+```
+src/
+├── components/          # React components
+│   ├── DictionaryLoadingComponents.tsx
+│   ├── DictionaryFeedback.tsx
+│   └── DictionaryDebugPanel.tsx
+├── hooks/              # React hooks
+│   └── useDictionary.ts
+├── services/           # Business logic
+│   └── DictionaryService.ts
+├── utils/              # Utility functions
+│   ├── storage.ts
+│   ├── validation.ts
+│   ├── retry.ts
+│   ├── errorHandling.ts
+│   ├── logging.ts
+│   └── performance.ts
+├── types/              # TypeScript definitions
+│   └── dictionary.ts
+├── config/             # Configuration
+│   └── dictionary.ts
+└── App.tsx            # Main application component
+```
+
+### Adding Features
+
+1. **New Dictionary Sources**: Update `DEFAULT_DICTIONARY_CONFIG.sourceUrl`
+2. **Custom Validation**: Extend `ValidationUtils` class
+3. **Additional Caching**: Modify `StorageUtils` methods
+4. **Performance Monitoring**: Use `PerformanceMonitor` class
+
+### Debugging
+
+Development mode includes a debug panel (bottom-left corner) with:
+- Dictionary state inspection
+- Error logs with export capability  
+- Performance metrics
+- Memory usage monitoring
+
+## Contributing
+
+1. Follow the established code style (ESLint configuration)
+2. Add TypeScript types for all new functionality
+3. Include error handling for all async operations
+4. Write tests for new utilities and services
+5. Update documentation for new features
+
+## License
+
+MIT License - see LICENSE file for details.
