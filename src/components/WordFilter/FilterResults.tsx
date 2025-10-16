@@ -82,46 +82,22 @@ export const FilterResults: React.FC<FilterResultsProps> = ({
     );
   }
 
-  const { words, metadata } = result;
+  const { words } = result;
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg">
-      {/* Results Header with Metadata */}
+      {/* Results Header */}
       <div className="border-b border-gray-200 p-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium text-gray-900">
             Filter Results
           </h3>
-          <div className="text-sm text-gray-500">
-            {words.length} word{words.length !== 1 ? 's' : ''} found
-          </div>
+          {words.length > 0 && (
+            <div className="text-sm text-gray-600 font-medium">
+              Found {words.length} word{words.length !== 1 ? 's' : ''}
+            </div>
+          )}
         </div>
-        
-        {metadata && (
-          <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-gray-600">
-            <div>
-              <div className="font-medium">Words Processed</div>
-              <div>{metadata.processedWords?.toLocaleString() || 0}</div>
-            </div>
-            <div>
-              <div className="font-medium">Candidates</div>
-              <div>{metadata.totalCandidates?.toLocaleString() || 0}</div>
-            </div>
-            <div>
-              <div className="font-medium">Processing Time</div>
-              <div>{metadata.processingTimeMs?.toFixed(1) || 0}ms</div>
-            </div>
-            <div>
-              <div className="font-medium">Efficiency</div>
-              <div>
-                {metadata.processedWords > 0 
-                  ? `${((metadata.totalCandidates / metadata.processedWords) * 100).toFixed(1)}%`
-                  : '0%'
-                }
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Results Content */}
@@ -159,19 +135,6 @@ export const FilterResults: React.FC<FilterResultsProps> = ({
           </div>
         )}
       </div>
-
-      {/* Performance Information */}
-      {metadata && metadata.processingTimeMs > 100 && (
-        <div className="border-t border-gray-200 p-4 bg-yellow-50">
-          <div className="text-sm text-yellow-800">
-            <div className="font-medium">Performance Notice</div>
-            <div className="mt-1">
-              This search took {metadata.processingTimeMs.toFixed(0)}ms. 
-              Consider using more specific constraints for faster results.
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

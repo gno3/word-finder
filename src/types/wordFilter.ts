@@ -105,3 +105,34 @@ export interface SegmentValidation {
 export interface CharacterFrequency {
   [char: string]: number;
 }
+
+/**
+ * Real-time validation state for segment input components
+ * Feature: 003-create-a-wordsegmentinput
+ */
+export interface SegmentValidationState {
+  /** Index of the segment being validated */
+  segmentIndex: number;
+  /** Field-specific validation results */
+  fieldErrors: {
+    availableLetters?: string;
+    targetLength?: string;
+  };
+  /** Whether this segment is currently valid */
+  isValid: boolean;
+}
+
+/**
+ * Component state for managing multiple segments with validation
+ * Feature: 003-create-a-wordsegmentinput
+ */
+export interface SegmentCollectionState {
+  /** Array of segments (1-5 segments allowed) */
+  segments: Segment[];
+  /** Total calculated length across all segments */
+  totalLength: number;
+  /** Collection-level validation state */
+  isValid: boolean;
+  /** Validation errors keyed by segment index */
+  validationErrors: Record<number, SegmentValidationState>;
+}

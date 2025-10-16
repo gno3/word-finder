@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import type { Segment } from '../../types/wordFilter.js';
+import { validateAvailableLetters, validateTargetLength, normalizeLetters } from '../../utils/segmentValidation.js';
 
 interface SegmentInputProps {
   /** Current segment configuration */
@@ -28,79 +29,93 @@ export const SegmentInput: React.FC<SegmentInputProps> = ({
   canRemove,
   error
 }) => {
-  const handleLengthChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newLength = parseInt(event.target.value, 10);
-    if (!isNaN(newLength) && newLength > 0) {
-      onChange({
-        ...segment,
-        targetLength: newLength
-      });
-    }
-  };
+  const [lettersError, setLettersError] = useState<string>('');
+  const [lengthError, setLengthError] = useState<string>('');
+  const [lengthVsLettersError, setLengthVsLettersError] = useState<string>('');
 
-  const handleLettersChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newLetters = event.target.value
-      .toLowerCase()
-      .replace(/[^a-z]/g, ''); // Only allow lowercase letters, keep duplicates for frequency
+  // Validate that target length doesn't exceed available letters
+  const validateLengthVsLetters = useCallback((targetLength: number, availableLetters: string) => {
+    if (targetLength > 0 && availableLetters.length > 0 && targetLength > availableLetters.length) {
+      setLengthVsLettersError(`Target length (${targetLength}) cannot be greater than available letters (${availableLetters.length})`);
+    } else {
+      setLengthVsLettersError('');
+    }
+  }, []);
+
+  const handleLengthChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = event.target.value;
+    const newLength = parseInt(rawValue, 10);
+    
+    // Real-time validation
+    const validationError = validateTargetLength(newLength);
+    setLengthError(validationError?.message || '');
+    
+    // Validate target length vs available letters
+    validateLengthVsLetters(isNaN(newLength) ? 0 : newLength, segment.availableLetters);
+    
+    // Update segment even if invalid (for real-time feedback)
+    onChange({
+      ...segment,
+      targetLength: isNaN(newLength) ? 0 : newLength
+    });
+  }, [segment, onChange, validateLengthVsLetters]);
+
+  const handleLettersChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const rawInput = event.target.value;
+    
+    // Real-time validation on raw input
+    const validationError = validateAvailableLetters(rawInput);
+    setLettersError(validationError?.message || '');
+    
+    // Normalize input (case normalization)
+    const normalizedLetters = normalizeLetters(rawInput);
+    
+    // Validate target length vs available letters
+    validateLengthVsLetters(segment.targetLength, normalizedLetters);
     
     onChange({
       ...segment,
-      availableLetters: newLetters
+      availableLetters: normalizedLetters
     });
-  };
+  }, [segment, onChange, validateLengthVsLetters]);
 
   const formatLettersForInput = (letters: string): string => {
     return letters;
   };
 
   return (
-    <div className="border border-gray-300 rounded-lg p-4 bg-white">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-medium text-gray-900">
+    <div className="card-modern p-6 hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500">
+      <div className="flex items-center justify-between mb-5">
+        <h3 className="text-lg font-bold text-slate-900 flex items-center">
+          <span className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-bold mr-3">
+            {index + 1}
+          </span>
           Segment {index + 1}
         </h3>
         {canRemove && (
           <button
             onClick={onRemove}
-            className="text-red-600 hover:text-red-800 font-medium text-sm"
+            className="button-secondary !py-2 !px-3 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
             type="button"
             aria-label={`Remove segment ${index + 1}`}
           >
-            Remove
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
           </button>
         )}
       </div>
 
-      <div className="space-y-4">
-        {/* Target Length Input */}
-        <div>
-          <label 
-            htmlFor={`segment-${index}-length`}
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Target Length
-          </label>
-          <input
-            id={`segment-${index}-length`}
-            type="number"
-            min="1"
-            max="20"
-            value={segment.targetLength}
-            onChange={handleLengthChange}
-            className="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="3"
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            Number of letters in this segment
-          </p>
-        </div>
-
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Available Letters Input */}
         <div>
           <label 
             htmlFor={`segment-${index}-letters`}
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-semibold text-slate-700 mb-2 flex items-center"
           >
+            <svg className="w-4 h-4 mr-2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
             Available Letters
           </label>
           <input
@@ -108,31 +123,111 @@ export const SegmentInput: React.FC<SegmentInputProps> = ({
             type="text"
             value={formatLettersForInput(segment.availableLetters)}
             onChange={handleLettersChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className={`input-modern font-mono h-12 ${
+              lettersError 
+                ? '!border-red-300 !ring-red-500 bg-red-50' 
+                : ''
+            }`}
             placeholder="aabbc"
             pattern="[a-zA-Z]*"
+            aria-invalid={!!lettersError}
+            aria-describedby={lettersError ? `segment-${index}-letters-error` : undefined}
+            aria-required
           />
-          <p className="text-xs text-gray-500 mt-1">
-            Letters available for this segment (frequency matters - enter 'aa' to use 'a' twice)
+          {lettersError && (
+            <div 
+              id={`segment-${index}-letters-error`}
+              className="mt-2 text-sm text-red-600 flex items-center bg-red-50 p-2 rounded-lg"
+              role="alert"
+              aria-live="polite"
+            >
+              <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+              </svg>
+              {lettersError}
+            </div>
+          )}
+          <p className="text-xs text-slate-500 mt-2 flex items-center">
+            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Possible letters
           </p>
         </div>
 
-        {/* Validation Summary */}
-        <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
-          <div>Target: {segment.targetLength} letters to use</div>
-          <div>Available: {segment.availableLetters.length} total letters</div>
-          {segment.availableLetters.length > 0 && (
-            <div>Pool: {segment.availableLetters.split('').join(', ')}</div>
+        {/* Target Length Input */}
+        <div>
+          <label 
+            htmlFor={`segment-${index}-length`}
+            className="block text-sm font-semibold text-slate-700 mb-2 flex items-center"
+          >
+            <svg className="w-4 h-4 mr-2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
+            </svg>
+            Target Length
+          </label>
+          <input
+            id={`segment-${index}-length`}
+            type="number"
+            min="1"
+            max="10"
+            value={segment.targetLength || ''}
+            onChange={handleLengthChange}
+            className={`input-modern text-center font-mono h-12 ${
+              lengthError || lengthVsLettersError
+                ? '!border-red-300 !ring-red-500 bg-red-50' 
+                : ''
+            }`}
+            placeholder="3"
+            aria-invalid={!!(lengthError || lengthVsLettersError)}
+            aria-describedby={lengthError ? `segment-${index}-length-error` : lengthVsLettersError ? `segment-${index}-length-vs-letters-error` : undefined}
+          />
+          {lengthError && (
+            <div 
+              id={`segment-${index}-length-error`}
+              className="mt-2 text-sm text-red-600 flex items-center bg-red-50 p-2 rounded-lg"
+              role="alert"
+              aria-live="polite"
+            >
+              <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+              </svg>
+              {lengthError}
+            </div>
           )}
+          {lengthVsLettersError && (
+            <div 
+              id={`segment-${index}-length-vs-letters-error`}
+              className="mt-2 text-sm text-red-600 flex items-center bg-red-50 p-2 rounded-lg"
+              role="alert"
+              aria-live="polite"
+            >
+              <svg className="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+              </svg>
+              {lengthVsLettersError}
+            </div>
+          )}
+          <p className="text-xs text-slate-500 mt-2 flex items-center">
+            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Letters to use (1-10)
+          </p>
         </div>
-
-        {/* Error Display */}
-        {error && (
-          <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
-            {error}
-          </div>
-        )}
       </div>
+
+      {/* General Error Display (for non-field-specific errors) */}
+      {error && (
+        <div className="mt-4 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 p-4 rounded-xl">
+          <div className="flex items-center">
+            <svg className="w-5 h-5 text-red-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+            </svg>
+            <div className="text-sm text-red-700 font-medium">{error}</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

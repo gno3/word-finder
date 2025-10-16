@@ -1,6 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import type { Segment } from '../../types/wordFilter.js';
 import { SegmentInput } from './SegmentInput.js';
+import { isCollectionValid, validateSegmentCount } from '../../utils/segmentValidation.js';
 
 interface WordFilterFormProps {
   /** Called when user initiates filtering with current segments */
@@ -52,42 +53,47 @@ export const WordFilterForm: React.FC<WordFilterFormProps> = ({
     setSegments(prev => prev.filter((_, i) => i !== index));
   }, []);
 
+  const canRemoveSegment = segments.length > 1;
+  const canAddSegment = segments.length < 5; // Max 5 segments per specification
+
+  // Use validation utilities for comprehensive form validation
+  const isFormValid = useMemo(() => {
+    // Check segment count constraints
+    const countError = validateSegmentCount(segments.length);
+    if (countError) return false;
+    
+    // Use collection validation from utilities
+    return isCollectionValid(segments);
+  }, [segments]);
+
   const handleSubmit = useCallback((event: React.FormEvent) => {
     event.preventDefault();
     
-    // Basic validation before submitting
-    const hasValidSegments = segments.length > 0 && segments.every(segment => 
-      segment.targetLength > 0 && segment.availableLetters.length > 0
-    );
-
-    if (hasValidSegments && !disabled && !isLoading) {
+    // Comprehensive validation using utilities
+    if (isFormValid && !disabled && !isLoading) {
       onFilter(segments);
     }
-  }, [segments, onFilter, disabled, isLoading]);
-
-  const canRemoveSegment = segments.length > 1;
-  const canAddSegment = segments.length < 10; // Reasonable upper limit
-
-  const isFormValid = segments.length > 0 && segments.every(segment => 
-    segment.targetLength > 0 && 
-    segment.availableLetters.length > 0 &&
-    segment.availableLetters.length >= segment.targetLength
-  );
+  }, [segments, onFilter, disabled, isLoading, isFormValid]);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-8">
+      <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">
+          <h2 className="text-xl font-bold text-slate-900 flex items-center">
+            <svg className="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
             Configure Segments
           </h2>
-          <div className="text-sm text-gray-600">
-            {segments.length} segment{segments.length !== 1 ? 's' : ''}
+          <div className="bg-slate-100 px-3 py-1 rounded-full">
+            <span className="text-sm font-medium text-slate-700">
+              {segments.length} of 5 segments
+            </span>
           </div>
         </div>
 
         {/* Segments List */}
-        <div className="space-y-4">
+        <div className="space-y-5">
           {segments.map((segment, index) => (
             <SegmentInput
               key={index}
@@ -106,78 +112,59 @@ export const WordFilterForm: React.FC<WordFilterFormProps> = ({
           <button
             type="button"
             onClick={handleAddSegment}
-            className="w-full py-2 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-gray-400 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full py-4 px-6 border-2 border-dashed border-slate-300 rounded-xl text-slate-600 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-all duration-200 group"
           >
-            + Add Another Segment
+            <div className="flex items-center justify-center space-x-2">
+              <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+              </svg>
+              <span className="font-medium">Add Another Segment</span>
+            </div>
           </button>
         )}
       </div>
 
-      {/* Form Summary */}
-      <div className="bg-blue-50 p-4 rounded-lg">
-        <h3 className="text-sm font-medium text-blue-900 mb-2">Filter Summary</h3>
-        <div className="text-sm text-blue-800">
-          <div>Segments: {segments.length}</div>
-          <div>
-            Total word length: {segments.reduce((sum, seg) => sum + seg.targetLength, 0)} letters
-          </div>
-          <div>
-            Pattern: {segments.map((seg) => 
-              `${seg.targetLength} letters from [${seg.availableLetters}]`
-            ).join(' + ')}
-          </div>
-        </div>
-      </div>
-
-      {/* Validation Messages */}
-      {!isFormValid && segments.some(seg => seg.availableLetters.length > 0) && (
-        <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg">
-          <div className="text-sm text-yellow-800">
-            <div className="font-medium mb-1">Form Validation Issues:</div>
-            <ul className="list-disc list-inside space-y-1">
-              {segments.map((segment, index) => {
-                const issues = [];
-                if (segment.targetLength <= 0) {
-                  issues.push('Target length must be greater than 0');
-                }
-                if (segment.availableLetters.length === 0) {
-                  issues.push('Must specify available letters');
-                }
-                if (segment.availableLetters.length < segment.targetLength) {
-                  issues.push('Need at least as many total letters as target length');
-                }
-                
-                if (issues.length > 0) {
-                  return (
-                    <li key={index}>
-                      Segment {index + 1}: {issues.join(', ')}
-                    </li>
-                  );
-                }
-                return null;
-              }).filter(Boolean)}
-            </ul>
+      {/* Form Status */}
+      {!isFormValid && segments.some(seg => seg.availableLetters.length > 0 || seg.targetLength > 0) && (
+        <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 p-4 rounded-xl">
+          <div className="flex items-center">
+            <svg className="w-5 h-5 text-amber-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+            </svg>
+            <div>
+              <div className="font-semibold text-amber-800 mb-1">
+                Complete all segments to enable filtering
+              </div>
+              <div className="text-sm text-amber-700">
+                Each segment needs valid letters (a-z only) and length (1-10).
+              </div>
+            </div>
           </div>
         </div>
       )}
 
       {/* Submit Button */}
-      <div className="flex justify-center">
+      <div className="flex justify-center pt-4">
         <button
           type="submit"
           disabled={disabled || isLoading || !isFormValid}
-          className="px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="button-primary px-12 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none disabled:hover:scale-100"
         >
           {isLoading ? (
             <span className="flex items-center">
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin -ml-1 mr-3 h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
               Filtering Words...
             </span>
           ) : (
-            'Filter Words'
+            <span className="flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              Filter Words
+            </span>
           )}
         </button>
       </div>
