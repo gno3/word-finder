@@ -40,10 +40,10 @@ export function validateAvailableLetters(input: string): ValidationError | null 
  * @returns ValidationError if invalid, null if valid
  */
 export function validateTargetLength(length: number): ValidationError | null {
-  if (!Number.isInteger(length) || length < 1 || length > 10) {
+  if (!Number.isInteger(length) || length < 1 || length > 15) {
     return {
       type: 'validation', 
-      message: 'Length must be between 1 and 10',
+      message: 'Length must be between 1 and 15',
       field: 'targetLength'
     };
   }
@@ -75,7 +75,7 @@ export function validateSegmentCount(count: number): ValidationError | null {
   if (count > 5) {
     return {
       type: 'validation',
-      message: 'Maximum 5 segments allowed',
+      message: 'Maximum 6 segments allowed',
       field: 'segmentCount'
     };
   }

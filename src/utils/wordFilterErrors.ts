@@ -81,7 +81,7 @@ export const FilterErrorMessages = {
   EMPTY_AVAILABLE_LETTERS: 'Available letters cannot be empty',
   INVALID_TARGET_LENGTH: 'Target length must be a positive integer',
   TARGET_LENGTH_EXCEEDS_LETTERS: 'Target length exceeds available unique letters',
-  TOO_MANY_SEGMENTS: 'Too many segments (maximum 10 allowed)',
+  TOO_MANY_SEGMENTS: 'Too many segments (maximum 6 allowed)',
   DICTIONARY_NOT_LOADED: 'Dictionary not loaded',
   NO_MATCHING_WORDS: 'No dictionary words satisfy the provided segment constraints',
   PROCESSING_ERROR: 'Unexpected error during word filtering'
@@ -96,7 +96,7 @@ export const FilterErrorSuggestions = {
   PROVIDE_LETTERS: 'Provide at least one available letter',
   USE_POSITIVE_LENGTH: 'Provide a positive integer for target length',
   REDUCE_LENGTH_OR_ADD_LETTERS: 'Reduce target length or provide more unique letters',
-  REDUCE_SEGMENT_COUNT: 'Reduce number of segments to 10 or fewer',
+  REDUCE_SEGMENT_COUNT: 'Reduce number of segments to 6 or fewer',
   WAIT_FOR_DICTIONARY: 'Wait for dictionary to load before filtering',
   ADJUST_CONSTRAINTS: 'Try adjusting available letters or segment lengths',
   CHECK_INPUT: 'Check input data and try again',

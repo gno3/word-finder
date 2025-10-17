@@ -28,6 +28,10 @@ interface UseWordFilterResult {
   metrics: FilterResult['metadata'] | null;
   /** Clear current results and error state */
   reset: () => void;
+  /** Reset all state including loading and error states */
+  resetAll: () => void;
+  /** Check if reset is available (has data to reset) */
+  canReset: boolean;
 }
 
 /**
@@ -124,6 +128,20 @@ export function useWordFilter(): UseWordFilterResult {
     setResult(null);
     setError(null);
   }, []);
+
+  /**
+   * Reset all state including loading and error states
+   */
+  const resetAll = useCallback(() => {
+    setResult(null);
+    setError(null);
+    setIsLoading(false);
+  }, []);
+
+  /**
+   * Check if reset is available (has data to reset)
+   */
+  const canReset = result !== null || error !== null;
   
   // Combine loading states
   const combinedLoading = isLoading || dictionaryLoading;
@@ -147,6 +165,8 @@ export function useWordFilter(): UseWordFilterResult {
     isLoading: combinedLoading,
     error: combinedError,
     metrics: result?.metadata || null,
-    reset
+    reset,
+    resetAll,
+    canReset
   };
 }

@@ -1,6 +1,11 @@
 import React, { useState, useCallback } from 'react';
 import type { Segment } from '../../types/wordFilter.js';
 import { validateAvailableLetters, validateTargetLength, normalizeLetters } from '../../utils/segmentValidation.js';
+import { useViewport } from '../../hooks/useViewport.js';
+import { TOUCH_TARGET_PATTERNS } from '../../utils/touchTargets.js';
+import { COMPONENT_TYPOGRAPHY } from '../../utils/typographySystem.js';
+import { COMPONENT_FOCUS } from '../../utils/focusSystem.js';
+import { SCREEN_READER_TEXT } from '../../utils/ariaSystem.js';
 
 interface SegmentInputProps {
   /** Current segment configuration */
@@ -15,6 +20,10 @@ interface SegmentInputProps {
   canRemove: boolean;
   /** Any validation errors for this segment */
   error?: string;
+  /** Enable mobile-optimized layout */
+  mobileOptimized?: boolean;
+  /** Enable touch-optimized interactions */
+  touchOptimized?: boolean;
 }
 
 /**
@@ -27,8 +36,11 @@ export const SegmentInput: React.FC<SegmentInputProps> = ({
   onRemove,
   index,
   canRemove,
-  error
+  error,
+  mobileOptimized = true,
+  touchOptimized = true
 }) => {
+  const { isMobile, isTablet, touchSupport } = useViewport();
   const [lettersError, setLettersError] = useState<string>('');
   const [lengthError, setLengthError] = useState<string>('');
   const [lengthVsLettersError, setLengthVsLettersError] = useState<string>('');
@@ -83,10 +95,38 @@ export const SegmentInput: React.FC<SegmentInputProps> = ({
     return letters;
   };
 
+  // Responsive layout classes based on viewport
+  const containerClasses = isMobile 
+    ? "card-modern p-3 hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500" 
+    : "card-modern p-6 hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500";
+
+  const headerClasses = isMobile 
+    ? "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3" 
+    : "flex items-center justify-between mb-5";
+
+  const titleClasses = isMobile 
+    ? "text-base font-bold text-slate-900 flex items-center" 
+    : "text-lg font-bold text-slate-900 flex items-center";
+
+  const gridClasses = isMobile 
+    ? "flex flex-col gap-3" 
+    : isTablet 
+      ? "grid grid-cols-1 gap-4" 
+      : "grid grid-cols-1 md:grid-cols-2 gap-6";
+
+  // Touch target classes for accessibility with enhanced focus
+  const buttonClasses = (touchSupport && touchOptimized)
+    ? `${TOUCH_TARGET_PATTERNS.BUTTON} button-secondary text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 ${COMPONENT_FOCUS.button.danger}`
+    : `button-secondary !py-2 !px-3 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 ${COMPONENT_FOCUS.button.danger}`;
+
+  const inputClasses = (touchSupport && mobileOptimized) 
+    ? `input-modern font-mono min-h-11 text-base ${COMPONENT_FOCUS.form.input}` 
+    : `input-modern font-mono h-12 ${COMPONENT_FOCUS.form.input}`;
+
   return (
-    <div className="card-modern p-6 hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500">
-      <div className="flex items-center justify-between mb-5">
-        <h3 className="text-lg font-bold text-slate-900 flex items-center">
+    <div className={containerClasses}>
+      <div className={headerClasses}>
+        <h3 className={titleClasses}>
           <span className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-bold mr-3">
             {index + 1}
           </span>
@@ -95,7 +135,7 @@ export const SegmentInput: React.FC<SegmentInputProps> = ({
         {canRemove && (
           <button
             onClick={onRemove}
-            className="button-secondary !py-2 !px-3 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+            className={buttonClasses}
             type="button"
             aria-label={`Remove segment ${index + 1}`}
           >
@@ -106,14 +146,14 @@ export const SegmentInput: React.FC<SegmentInputProps> = ({
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className={gridClasses}>
         {/* Available Letters Input */}
         <div>
           <label 
             htmlFor={`segment-${index}-letters`}
-            className="block text-sm font-semibold text-slate-700 mb-2 flex items-center"
+            className={`block ${COMPONENT_TYPOGRAPHY.segmentInput.label} text-slate-700 mb-2 flex items-center`}
           >
-            <svg className="w-4 h-4 mr-2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 mr-2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
             Available Letters
@@ -123,21 +163,22 @@ export const SegmentInput: React.FC<SegmentInputProps> = ({
             type="text"
             value={formatLettersForInput(segment.availableLetters)}
             onChange={handleLettersChange}
-            className={`input-modern font-mono h-12 ${
+            className={`${inputClasses} ${
               lettersError 
                 ? '!border-red-300 !ring-red-500 bg-red-50' 
                 : ''
             }`}
             placeholder="aabbc"
             pattern="[a-zA-Z]*"
+            aria-required="true"
             aria-invalid={!!lettersError}
-            aria-describedby={lettersError ? `segment-${index}-letters-error` : undefined}
-            aria-required
+            aria-describedby={`segment-${index}-letters-help ${lettersError ? `segment-${index}-letters-error` : ''}`.trim()}
+            aria-label={`${SCREEN_READER_TEXT.wordFilter.availableLetters} for segment ${index + 1}`}
           />
           {lettersError && (
             <div 
               id={`segment-${index}-letters-error`}
-              className="mt-2 text-sm text-red-600 flex items-center bg-red-50 p-2 rounded-lg"
+              className={`mt-2 ${COMPONENT_TYPOGRAPHY.segmentInput.error} flex items-center bg-red-50 p-2 rounded-lg`}
               role="alert"
               aria-live="polite"
             >
@@ -147,8 +188,8 @@ export const SegmentInput: React.FC<SegmentInputProps> = ({
               {lettersError}
             </div>
           )}
-          <p className="text-xs text-slate-500 mt-2 flex items-center">
-            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <p id={`segment-${index}-letters-help`} className={`${COMPONENT_TYPOGRAPHY.segmentInput.counter} text-slate-500 mt-2 flex items-center`}>
+            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             Possible letters
@@ -159,7 +200,7 @@ export const SegmentInput: React.FC<SegmentInputProps> = ({
         <div>
           <label 
             htmlFor={`segment-${index}-length`}
-            className="block text-sm font-semibold text-slate-700 mb-2 flex items-center"
+            className={`block ${COMPONENT_TYPOGRAPHY.segmentInput.label} text-slate-700 mb-2 flex items-center`}
           >
             <svg className="w-4 h-4 mr-2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"/>
@@ -170,17 +211,21 @@ export const SegmentInput: React.FC<SegmentInputProps> = ({
             id={`segment-${index}-length`}
             type="number"
             min="1"
-            max="10"
+            max="15"
             value={segment.targetLength || ''}
             onChange={handleLengthChange}
-            className={`input-modern text-center font-mono h-12 ${
+            className={`${inputClasses} text-center ${
               lengthError || lengthVsLettersError
                 ? '!border-red-300 !ring-red-500 bg-red-50' 
                 : ''
             }`}
             placeholder="3"
+            aria-required="true"
             aria-invalid={!!(lengthError || lengthVsLettersError)}
-            aria-describedby={lengthError ? `segment-${index}-length-error` : lengthVsLettersError ? `segment-${index}-length-vs-letters-error` : undefined}
+            aria-describedby={`segment-${index}-length-help ${lengthError ? `segment-${index}-length-error` : ''} ${lengthVsLettersError ? `segment-${index}-length-vs-letters-error` : ''}`.trim()}
+            aria-label={`${SCREEN_READER_TEXT.wordFilter.targetLength} for segment ${index + 1}`}
+            aria-valuemin={1}
+            aria-valuemax={10}
           />
           {lengthError && (
             <div 
@@ -208,11 +253,11 @@ export const SegmentInput: React.FC<SegmentInputProps> = ({
               {lengthVsLettersError}
             </div>
           )}
-          <p className="text-xs text-slate-500 mt-2 flex items-center">
-            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <p id={`segment-${index}-length-help`} className={`${COMPONENT_TYPOGRAPHY.segmentInput.counter} text-slate-500 mt-2 flex items-center`}>
+            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            Letters to use (1-10)
+            Letters to use (1-15)
           </p>
         </div>
       </div>

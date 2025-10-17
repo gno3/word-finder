@@ -127,7 +127,7 @@ export interface SegmentValidationState {
  * Feature: 003-create-a-wordsegmentinput
  */
 export interface SegmentCollectionState {
-  /** Array of segments (1-5 segments allowed) */
+  /** Array of segments (1-6 segments allowed) */
   segments: Segment[];
   /** Total calculated length across all segments */
   totalLength: number;
@@ -135,4 +135,72 @@ export interface SegmentCollectionState {
   isValid: boolean;
   /** Validation errors keyed by segment index */
   validationErrors: Record<number, SegmentValidationState>;
+}
+
+/**
+ * Reset operation state management
+ * Feature: 004-responsiveness-and-polish
+ */
+export interface ResetState {
+  /** Indicates if reset operation is in progress */
+  isResetting: boolean;
+  /** Controls display of confirmation dialog */
+  showConfirmation: boolean;
+  /** Error message if reset operation fails */
+  resetError: string | null;
+  /** Timestamp of last successful reset */
+  lastResetTimestamp: number | null;
+}
+
+/**
+ * Reset action types for state management
+ * Feature: 004-responsiveness-and-polish
+ */
+export type ResetAction = 
+  | { type: 'RESET_REQUEST' }
+  | { type: 'RESET_CONFIRM' }
+  | { type: 'RESET_CANCEL' }
+  | { type: 'RESET_SUCCESS'; payload: { timestamp: number } }
+  | { type: 'RESET_ERROR'; payload: { errorMessage: string } }
+  | { type: 'CLEAR_ERROR' };
+
+/**
+ * Configuration for reset operations
+ * Feature: 004-responsiveness-and-polish
+ */
+export interface ResetConfig {
+  /** Callback fired when reset completes successfully */
+  onResetComplete?: () => void;
+  /** Callback fired when reset encounters an error */
+  onResetError?: (error: string) => void;
+  /** Whether to preserve user preferences during reset */
+  preserveSettings?: boolean;
+  /** Custom confirmation message for reset dialog */
+  confirmationMessage?: string;
+}
+
+/**
+ * Extended filter state with reset capabilities
+ * Feature: 004-responsiveness-and-polish
+ */
+export interface WordFilterState extends SegmentCollectionState {
+  /** Current filter results */
+  filterResult: FilterResult | null;
+  /** Loading state for filter operations */
+  isLoading: boolean;
+  /** Reset operation state */
+  resetState: ResetState;
+}
+
+/**
+ * Reset operation context for error recovery
+ * Feature: 004-responsiveness-and-polish
+ */
+export interface ResetContext {
+  /** Previous state before reset attempt */
+  previousState?: WordFilterState;
+  /** Reason for reset operation */
+  reason: 'user_request' | 'error_recovery' | 'timeout';
+  /** Whether recovery is possible */
+  canRecover: boolean;
 }

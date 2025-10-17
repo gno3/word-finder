@@ -139,15 +139,15 @@ export function validateSegmentsArray(segments: Segment[]): FilterError[] {
     return errors;
   }
 
-  // Check maximum segments limit (specification says up to 10)
-  if (segments.length > 10) {
+  // Check maximum segments limit (specification says up to 6)
+  if (segments.length > 6) {
     errors.push({
       type: 'validation',
-      message: `Too many segments: ${segments.length} (maximum 10 allowed)`,
+      message: `Too many segments: ${segments.length} (maximum 6 allowed)`,
       details: {
         constraint: 'maximum segments limit',
         providedValue: segments.length,
-        suggestion: 'Reduce number of segments to 10 or fewer'
+        suggestion: 'Reduce number of segments to 6 or fewer'
       }
     });
   }
