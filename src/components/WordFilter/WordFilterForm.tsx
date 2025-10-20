@@ -47,7 +47,7 @@ export const WordFilterForm: React.FC<WordFilterFormProps> = ({
   const [segments, setSegments] = useState<Segment[]>([
     {
       availableLetters: '',
-      targetLength: 3
+      targetLength: 1
     }
   ]);
 
@@ -55,7 +55,7 @@ export const WordFilterForm: React.FC<WordFilterFormProps> = ({
   const handleFormReset = useCallback(() => {
     setSegments([{
       availableLetters: '',
-      targetLength: 3
+      targetLength: 1
     }]);
     
     // Call parent reset handler if provided
@@ -66,7 +66,7 @@ export const WordFilterForm: React.FC<WordFilterFormProps> = ({
 
   // Handle reset button click with confirmation
   const handleResetClick = useCallback(() => {
-    if (segments.length === 1 && segments[0].availableLetters === '' && segments[0].targetLength === 3) {
+    if (segments.length === 1 && segments[0].availableLetters === '' && segments[0].targetLength === 1) {
       // Already in initial state, no need for confirmation
       return;
     }
@@ -87,7 +87,7 @@ export const WordFilterForm: React.FC<WordFilterFormProps> = ({
       ...prev,
       {
         availableLetters: '',
-        targetLength: 3
+        targetLength: 1
       }
     ]);
   }, []);
@@ -204,24 +204,7 @@ export const WordFilterForm: React.FC<WordFilterFormProps> = ({
         </p>
       </div>
 
-      {/* Form Status */}
-      {!isFormValid && segments.some(seg => seg.availableLetters.length > 0 || seg.targetLength > 0) && (
-        <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 p-4 rounded-xl">
-          <div className="flex items-center">
-            <svg className="w-5 h-5 text-amber-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-            </svg>
-            <div>
-              <div className="font-semibold text-amber-800 mb-1">
-                Complete all segments to enable filtering
-              </div>
-              <div className={`${helpTextClasses} text-amber-700`}>
-                Each segment needs valid letters (a-z only) and length (1-15).
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Submit Button */}
       <div className="flex justify-center">

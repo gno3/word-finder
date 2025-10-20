@@ -72,7 +72,7 @@ export function validateSegmentCount(count: number): ValidationError | null {
       field: 'segmentCount'
     };
   }
-  if (count > 5) {
+  if (count > 6) {
     return {
       type: 'validation',
       message: 'Maximum 6 segments allowed',
@@ -83,9 +83,9 @@ export function validateSegmentCount(count: number): ValidationError | null {
 }
 
 /**
- * Check if segment collection is valid
+ * Check if segment collection is valid for filtering
  * @param segments - Array of segments to validate
- * @returns true if all segments are valid, false otherwise
+ * @returns true if all segments are valid and ready for filtering, false otherwise
  */
 export function isCollectionValid(segments: Array<{availableLetters: string; targetLength: number}>): boolean {
   // Check segment count
@@ -94,10 +94,20 @@ export function isCollectionValid(segments: Array<{availableLetters: string; tar
   
   // Check each segment
   for (const segment of segments) {
+    // For filtering, segments must have available letters
+    if (segment.availableLetters.length === 0) {
+      return false;
+    }
+    
     const lettersError = validateAvailableLetters(segment.availableLetters);
     const lengthError = validateTargetLength(segment.targetLength);
     
     if (lettersError || lengthError) {
+      return false;
+    }
+    
+    // Target length cannot exceed available letters
+    if (segment.targetLength > segment.availableLetters.length) {
       return false;
     }
   }

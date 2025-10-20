@@ -116,11 +116,6 @@ export const FilterResults: React.FC<FilterResultsProps> = ({
             </h3>
             <div className="text-red-700">
               <p className="leading-relaxed">{error.message}</p>
-              {error.details && (
-                <div className="mt-3 text-sm bg-red-100 p-3 rounded-lg border border-red-200">
-                  <pre className="whitespace-pre-wrap font-mono">{JSON.stringify(error.details, null, 2)}</pre>
-                </div>
-              )}
             </div>
           </div>
         </div>
