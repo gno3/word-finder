@@ -1,4 +1,4 @@
-# Word Finder
+# Word Finder App
 
 A React TypeScript application that loads and searches a dictionary of words, featuring robust caching, error handling, offline support, and comprehensive responsive design.
 
