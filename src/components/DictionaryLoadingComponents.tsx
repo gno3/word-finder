@@ -156,7 +156,7 @@ export const DictionaryStatus: React.FC<DictionaryStatusProps> = ({
   }
 
   return (
-    <div className={`p-3 rounded-lg border ${status.bgColor} ${className}`}>
+    <div className={`px-2 py-3 sm:p-3 rounded-lg border ${status.bgColor} ${className}`}>
       <div className="flex items-start space-x-3">
         <span className="text-lg">{status.icon}</span>
         <div className="flex-1">
@@ -221,7 +221,7 @@ export const DictionaryErrorDisplay: React.FC<DictionaryErrorDisplayProps> = ({
   };
 
   return (
-    <div className={`rounded-lg border p-4 ${getErrorColor(error.type)} ${className}`}>
+    <div className={`rounded-lg border px-2 py-3 sm:p-4 ${getErrorColor(error.type)} ${className}`}>
       <div className="flex items-start space-x-3">
         <span className="text-lg">{getErrorIcon(error.type)}</span>
         <div className="flex-1">

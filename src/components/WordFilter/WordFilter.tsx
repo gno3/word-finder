@@ -153,7 +153,7 @@ export const WordFilter: React.FC = () => {
                 desktopColumns={3}
               />
             ) : (
-              <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+              <div className="bg-white border border-gray-200 rounded-xl shadow-sm px-2 py-3 sm:p-6">
                 <div className="text-center text-gray-600">
                   <p>Results are being optimized for performance...</p>
                 </div>

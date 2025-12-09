@@ -52,7 +52,7 @@ export const FilterResults: React.FC<FilterResultsProps> = ({
   };
 
   const gridCols = getGridColumns();
-  const gridClasses = `grid gap-2 ${
+  const gridClasses = `grid gap-2 sm:gap-3 ${
     gridCols === 1 ? 'grid-cols-1' :
     gridCols === 2 ? 'grid-cols-2' :
     gridCols === 3 ? 'grid-cols-3' :
@@ -63,7 +63,7 @@ export const FilterResults: React.FC<FilterResultsProps> = ({
   // Loading state with enhanced skeleton UI
   if (isLoading) {
     return (
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm px-2 py-3 sm:p-6">
         {/* Loading header */}
         <div className="flex items-center justify-center mb-8">
           <div className="flex items-center space-x-3">
@@ -101,7 +101,7 @@ export const FilterResults: React.FC<FilterResultsProps> = ({
   // Error state
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+      <div className="bg-red-50 border border-red-200 rounded-xl px-2 py-3 sm:p-6">
         <div className="flex items-start space-x-3">
           <div className="flex-shrink-0">
             <svg className="h-6 w-6 text-red-500" viewBox="0 0 20 20" fill="currentColor">
@@ -126,7 +126,7 @@ export const FilterResults: React.FC<FilterResultsProps> = ({
   // No results yet
   if (!result) {
     return (
-      <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center">
+      <div className="bg-gray-50 border border-gray-200 rounded-xl px-2 py-6 sm:p-8 text-center">
         <div className="text-gray-500">
           <svg className="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -147,7 +147,7 @@ export const FilterResults: React.FC<FilterResultsProps> = ({
   return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
       {/* Results Header */}
-      <div className="border-b border-gray-100 p-6">
+      <div className="border-b border-gray-100 px-2 py-3 sm:p-6">
         <div className="flex items-center justify-between">
           <h3 className="text-xl font-semibold text-gray-900">
             Filter Results
@@ -161,7 +161,7 @@ export const FilterResults: React.FC<FilterResultsProps> = ({
       </div>
 
       {/* Results Content */}
-      <div className="p-6">
+      <div className="px-2 py-3 sm:p-6">
         {words.length === 0 ? (
           <div className="text-center py-12">
             <svg className="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

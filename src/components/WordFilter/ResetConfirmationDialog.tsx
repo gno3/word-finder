@@ -110,7 +110,7 @@ export const ResetConfirmationDialog: React.FC<ResetConfirmationDialogProps> = (
       {/* Dialog */}
       <div className={`
         relative bg-white rounded-xl shadow-xl max-w-md w-full mx-auto
-        ${isMobile ? 'p-4' : 'p-6'}
+        ${isMobile ? 'px-3 py-4' : 'p-6'}
         transform transition-all duration-200
       `}>
         {/* Header */}

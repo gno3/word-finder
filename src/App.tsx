@@ -77,27 +77,8 @@ function App() {
       {/* Toast Manager */}
       <ToastManager toasts={toasts} onDismiss={removeToast} />
 
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-2 sm:px-4 md:px-6 py-4 sm:py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-lg">W</span>
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-slate-900">Word Finder</h1>
-                <p className="text-sm text-slate-600 mt-0.5">
-                  Smart pattern-based word filtering
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-2 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
+      <main className="max-w-6xl mx-auto px-1 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
         {/* Dictionary Status Card */}
         {hasError && loadingState.error && (
           <div className="mb-8">
@@ -111,7 +92,7 @@ function App() {
         )}
 
         {/* Word Filter */}
-        <div className="card-modern p-3 sm:p-6 md:p-8">
+        <div className="card-modern px-2 py-3 sm:p-6 md:p-8">
           <WordFilter />
         </div>
       </main>
