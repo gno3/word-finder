@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import type { Segment } from '../../types/wordFilter.js';
 import { SegmentInput } from './SegmentInput.js';
 import { isCollectionValid, validateSegmentCount } from '../../utils/segmentValidation.js';
@@ -50,6 +50,18 @@ export const WordFilterForm: React.FC<WordFilterFormProps> = ({
       targetLength: 1
     }
   ]);
+  // Track the index of the newly added segment for auto-focus
+  const [newSegmentIndex, setNewSegmentIndex] = useState<number | null>(null);
+
+  // Clear the newSegmentIndex after auto-focus has been applied
+  useEffect(() => {
+    if (newSegmentIndex !== null) {
+      const timer = setTimeout(() => {
+        setNewSegmentIndex(null);
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [newSegmentIndex]);
 
   // Reset form to initial state
   const handleFormReset = useCallback(() => {
@@ -83,13 +95,17 @@ export const WordFilterForm: React.FC<WordFilterFormProps> = ({
   }, []);
 
   const handleAddSegment = useCallback(() => {
-    setSegments(prev => [
-      ...prev,
-      {
-        availableLetters: '',
-        targetLength: 1
-      }
-    ]);
+    setSegments(prev => {
+      const newIndex = prev.length;
+      setNewSegmentIndex(newIndex);
+      return [
+        ...prev,
+        {
+          availableLetters: '',
+          targetLength: 1
+        }
+      ];
+    });
   }, []);
 
   const handleRemoveSegment = useCallback((index: number) => {
@@ -179,6 +195,7 @@ export const WordFilterForm: React.FC<WordFilterFormProps> = ({
               error={validationErrors[index]}
               mobileOptimized={mobileOptimized}
               touchOptimized={touchSupport}
+              autoFocus={index === newSegmentIndex}
             />
           ))}
         </fieldset>

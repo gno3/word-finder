@@ -106,13 +106,13 @@ interface ToastManagerProps {
 
 export const ToastManager: React.FC<ToastManagerProps> = ({ toasts, onDismiss }) => {
   return (
-    <div className="fixed top-0 right-0 z-50 p-4 space-y-3">
+    <>
       {toasts.map((toast, index) => (
         <div
           key={toast.id}
-          style={{ 
+          style={{
             transform: `translateY(${index * 80}px)`,
-            zIndex: 50 - index 
+            zIndex: 50 - index
           }}
         >
           <Toast
@@ -124,7 +124,7 @@ export const ToastManager: React.FC<ToastManagerProps> = ({ toasts, onDismiss })
           />
         </div>
       ))}
-    </div>
+    </>
   );
 };
 

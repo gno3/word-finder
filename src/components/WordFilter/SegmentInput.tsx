@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import type { Segment } from '../../types/wordFilter.js';
 import { validateAvailableLetters, validateTargetLength, normalizeLetters } from '../../utils/segmentValidation.js';
 import { useViewport } from '../../hooks/useViewport.js';
@@ -24,6 +24,8 @@ interface SegmentInputProps {
   mobileOptimized?: boolean;
   /** Enable touch-optimized interactions */
   touchOptimized?: boolean;
+  /** Auto-focus the available letters input on mount */
+  autoFocus?: boolean;
 }
 
 /**
@@ -38,12 +40,24 @@ export const SegmentInput: React.FC<SegmentInputProps> = ({
   canRemove,
   error,
   mobileOptimized = true,
-  touchOptimized = true
+  touchOptimized = true,
+  autoFocus = false
 }) => {
   const { isMobile, isTablet, touchSupport } = useViewport();
   const [lettersError, setLettersError] = useState<string>('');
   const [lengthError, setLengthError] = useState<string>('');
   const [lengthVsLettersError, setLengthVsLettersError] = useState<string>('');
+  const lettersInputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-focus the letters input when autoFocus is true
+  useEffect(() => {
+    if (autoFocus && lettersInputRef.current) {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        lettersInputRef.current?.focus();
+      }, 100);
+    }
+  }, [autoFocus]);
 
   // Validate that target length doesn't exceed available letters
   const validateLengthVsLetters = useCallback((targetLength: number, availableLetters: string) => {
@@ -96,8 +110,8 @@ export const SegmentInput: React.FC<SegmentInputProps> = ({
   };
 
   // Responsive layout classes based on viewport
-  const containerClasses = isMobile 
-    ? "card-modern p-3 hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500" 
+  const containerClasses = isMobile
+    ? "card-modern px-2 py-3 hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500"
     : "card-modern p-6 hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500";
 
   const headerClasses = isMobile 
@@ -108,11 +122,11 @@ export const SegmentInput: React.FC<SegmentInputProps> = ({
     ? "text-base font-bold text-slate-900 flex items-center" 
     : "text-lg font-bold text-slate-900 flex items-center";
 
-  const gridClasses = isMobile 
-    ? "flex flex-col gap-3" 
-    : isTablet 
-      ? "grid grid-cols-1 gap-4" 
-      : "grid grid-cols-1 md:grid-cols-2 gap-6";
+  const gridClasses = isMobile
+    ? "flex flex-col gap-3"
+    : isTablet
+      ? "grid grid-cols-1 gap-4"
+      : "grid grid-cols-5 gap-6";
 
   // Touch target classes for accessibility with enhanced focus
   const buttonClasses = (touchSupport && touchOptimized)
@@ -132,23 +146,11 @@ export const SegmentInput: React.FC<SegmentInputProps> = ({
           </span>
           Segment {index + 1}
         </h3>
-        {canRemove && (
-          <button
-            onClick={onRemove}
-            className={buttonClasses}
-            type="button"
-            aria-label={`Remove segment ${index + 1}`}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-            </svg>
-          </button>
-        )}
       </div>
 
       <div className={gridClasses}>
         {/* Available Letters Input */}
-        <div>
+        <div className={isMobile || isTablet ? "" : "col-span-2"}>
           <label 
             htmlFor={`segment-${index}-letters`}
             className={`block ${COMPONENT_TYPOGRAPHY.segmentInput.label} text-slate-700 mb-2 flex items-center`}
@@ -159,13 +161,14 @@ export const SegmentInput: React.FC<SegmentInputProps> = ({
             Available Letters
           </label>
           <input
+            ref={lettersInputRef}
             id={`segment-${index}-letters`}
             type="text"
             value={formatLettersForInput(segment.availableLetters)}
             onChange={handleLettersChange}
             className={`${inputClasses} ${
-              lettersError 
-                ? '!border-red-300 !ring-red-500 bg-red-50' 
+              lettersError
+                ? '!border-red-300 !ring-red-500 bg-red-50'
                 : ''
             }`}
             placeholder="aabbc"
@@ -197,7 +200,7 @@ export const SegmentInput: React.FC<SegmentInputProps> = ({
         </div>
 
         {/* Target Length Input */}
-        <div>
+        <div className={isMobile || isTablet ? "" : "col-span-2"}>
           <label 
             htmlFor={`segment-${index}-length`}
             className={`block ${COMPONENT_TYPOGRAPHY.segmentInput.label} text-slate-700 mb-2 flex items-center`}
@@ -260,6 +263,23 @@ export const SegmentInput: React.FC<SegmentInputProps> = ({
             Letters to use (1-15)
           </p>
         </div>
+
+        {/* Remove Button Column */}
+        {canRemove && (
+          <div className={`flex ${isMobile || isTablet ? 'justify-center mt-3' : 'items-start justify-center'}`}>
+            <button
+              onClick={onRemove}
+              className={`${buttonClasses} ${isMobile || isTablet ? 'w-full' : 'w-auto'} flex items-center justify-center ${isMobile || isTablet ? '' : 'mt-8'}`}
+              type="button"
+              aria-label={`Remove segment ${index + 1}`}
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+              Remove
+            </button>
+          </div>
+        )}
       </div>
 
       {/* General Error Display (for non-field-specific errors) */}

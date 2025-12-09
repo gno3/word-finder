@@ -11,30 +11,30 @@
  * Each level represents a consistent spacing increment
  */
 export const SPACING_SCALE = {
-  // Micro spacing (0.25rem increments)
+  // Micro spacing (0.25rem increments) - vertical only for forms
   micro: {
-    xs: 'space-x-1 space-y-1',    // 4px
-    sm: 'space-x-2 space-y-2',    // 8px
-    md: 'space-x-3 space-y-3',    // 12px
-    lg: 'space-x-4 space-y-4',    // 16px
+    xs: 'space-y-1',    // 4px
+    sm: 'space-y-2',    // 8px
+    md: 'space-y-3',    // 12px
+    lg: 'space-y-4',    // 16px
   },
-  
-  // Component spacing (0.5rem increments)
+
+  // Component spacing (0.5rem increments) - vertical only for forms
   component: {
-    xs: 'space-x-2 space-y-2',    // 8px
-    sm: 'space-x-3 space-y-3',    // 12px
-    md: 'space-x-4 space-y-4',    // 16px
-    lg: 'space-x-6 space-y-6',    // 24px
-    xl: 'space-x-8 space-y-8',    // 32px
+    xs: 'space-y-2',    // 8px
+    sm: 'space-y-3',    // 12px
+    md: 'space-y-4',    // 16px
+    lg: 'space-y-6',    // 24px
+    xl: 'space-y-8',    // 32px
   },
-  
-  // Layout spacing (1rem increments)
+
+  // Layout spacing (1rem increments) - vertical only for forms
   layout: {
-    xs: 'space-x-4 space-y-4',    // 16px
-    sm: 'space-x-6 space-y-6',    // 24px
-    md: 'space-x-8 space-y-8',    // 32px
-    lg: 'space-x-12 space-y-12',  // 48px
-    xl: 'space-x-16 space-y-16',  // 64px
+    xs: 'space-y-4',    // 16px
+    sm: 'space-y-6',    // 24px
+    md: 'space-y-8',    // 32px
+    lg: 'space-y-12',   // 48px
+    xl: 'space-y-16',   // 64px
   }
 } as const;
 
@@ -44,63 +44,64 @@ export const SPACING_SCALE = {
 export const PADDING_PATTERNS = {
   // Content padding (text content, cards, panels)
   content: {
-    mobile: 'p-3',      // 12px
-    tablet: 'p-4',     // 16px  
-    desktop: 'p-6',    // 24px
-    responsive: 'p-3 sm:p-4 md:p-6',
+    mobile: 'px-2 py-3',      // 8px horizontal, 12px vertical
+    tablet: 'p-4',            // 16px
+    desktop: 'p-6',           // 24px
+    responsive: 'px-2 py-3 sm:p-4 md:p-6',
   },
-  
+
   // Form padding (inputs, buttons, interactive elements)
   form: {
-    mobile: 'p-2',      // 8px
-    tablet: 'p-3',     // 12px
-    desktop: 'p-4',    // 16px
-    responsive: 'p-2 sm:p-3 md:p-4',
+    mobile: 'px-2 py-2',      // 8px horizontal, 8px vertical
+    tablet: 'p-3',            // 12px
+    desktop: 'p-4',           // 16px
+    responsive: 'px-2 py-2 sm:p-3 md:p-4',
   },
-  
+
   // Container padding (main layout containers)
   container: {
-    mobile: 'p-2',      // 8px
-    tablet: 'p-4',     // 16px
-    desktop: 'p-6',    // 24px
-    responsive: 'p-2 sm:p-4 md:p-6',
+    mobile: 'px-1',           // 4px horizontal (minimal for outer containers)
+    tablet: 'px-4',           // 16px
+    desktop: 'px-6',          // 24px
+    responsive: 'px-1 sm:px-4 md:px-6',
   },
-  
+
   // Section padding (major UI sections)
   section: {
-    mobile: 'p-4',      // 16px
-    tablet: 'p-6',     // 24px
-    desktop: 'p-8',    // 32px
-    responsive: 'p-4 sm:p-6 md:p-8',
+    mobile: 'px-2 py-4',      // 8px horizontal, 16px vertical
+    tablet: 'p-6',            // 24px
+    desktop: 'p-8',           // 32px
+    responsive: 'px-2 py-4 sm:p-6 md:p-8',
   }
 } as const;
 
 /**
  * Standard margin patterns for consistent external spacing
+ * Using vertical-only margins to maximize horizontal space
  */
 export const MARGIN_PATTERNS = {
-  // Element margins (between related elements)
+  // Element margins (between related elements) - vertical only
   element: {
-    mobile: 'm-2',      // 8px
-    tablet: 'm-3',     // 12px
-    desktop: 'm-4',    // 16px
-    responsive: 'm-2 sm:m-3 md:m-4',
+    mobile: 'my-2',      // 8px
+    tablet: 'my-3',      // 12px
+    desktop: 'my-4',     // 16px
+    responsive: 'my-2 sm:my-3 md:my-4',
   },
-  
-  // Component margins (between components)
+
+  // Component margins (between components) - vertical only
   component: {
-    mobile: 'm-3',      // 12px
-    tablet: 'm-4',     // 16px
-    desktop: 'm-6',    // 24px
-    responsive: 'm-3 sm:m-4 md:m-6',
+    mobile: 'my-3',      // 12px
+    tablet: 'my-4',      // 16px
+    desktop: 'my-6',     // 24px
+    responsive: 'my-3 sm:my-4 md:my-6',
   },
-  
-  // Section margins (between major sections)
+
+  // Section margins (between major sections) - vertical only
   section: {
-    mobile: 'm-4',      // 16px
-    tablet: 'm-6',     // 24px
-    desktop: 'm-8',    // 32px
-    responsive: 'm-4 sm:m-6 md:m-8',
+    mobile: 'my-4',      // 16px
+    tablet: 'my-6',      // 24px
+    desktop: 'my-8',     // 32px
+    responsive: 'my-4 sm:my-6 md:my-8',
   }
 } as const;
 
